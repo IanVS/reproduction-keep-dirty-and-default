@@ -1,44 +1,50 @@
 import { useForm } from "react-hook-form";
-import Tags from "./Tags";
 import "./App.css";
 
-export type FormValues = {
-  tags: string[];
+type FormValues = {
+  firstName: string;
+  lastName: string;
 };
 
 const defaultValues = {
-  tags: ["tag1"],
+  firstName: "",
+  lastName: "",
 };
 
 function App() {
-  const { handleSubmit, reset, formState, watch, getValues, control } = useForm(
+  const { handleSubmit, register, reset, formState } = useForm<FormValues>(
     {
       defaultValues,
     },
   );
 
-  const { isValid } = formState;
+  const { dirtyFields } = formState;
 
-  // const values = watch();
-  const values = getValues();
+  function resetForm() {
+    reset(
+      { ...defaultValues, firstName: "was reset, is dirty" },
+      { keepDefaultValues: true }
+    );
+  }
 
-  console.log("VALUES", values);
+  function resetKeepDirty() {
+    reset(
+      { ...defaultValues, firstName: "was reset, should be dirty" },
+      { keepDefaultValues: true, keepDirtyValues: true }
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit((data) => console.log(data))}>
       <code>
-        <pre>getValues: {values.tags.toString()}</pre>
+        <pre>dirtyFields: {JSON.stringify(dirtyFields)}</pre>
       </code>
-      <Tags control={control} name="tags" />
-      <button
-        type="button"
-        onClick={() =>
-          reset(
-            { ...defaultValues },
-            { keepDirty: true, keepDirtyValues: true },
-          )
-        }
-      >
+      <input {...register("firstName")} placeholder="First Name" />
+      <input {...register("lastName")} placeholder="Last Name" />
+      <button type="button" onClick={resetKeepDirty}>
+        Reset with keepDirtyValues
+      </button>
+      <button type="button" onClick={resetForm}>
         Reset
       </button>
     </form>
